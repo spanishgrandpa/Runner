@@ -8,6 +8,7 @@ import android.view.SurfaceHolder
 
 class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : Thread() {
 
+    var isFire = true
     private val REDRAW_TIME = 33 //частота обновления экрана - 10 мс
 
     private var mRunning //запущен ли процесс
@@ -21,6 +22,7 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
     private var mArgbEvaluator: ArgbEvaluator
 
     var steve = BitmapFactory.decodeResource(context.resources, R.drawable.qwr)
+    var fire = BitmapFactory.decodeResource(context.resources, R.drawable.qw)
     var ground = BitmapFactory.decodeResource(context.resources, R.drawable.group)
     var creeper = BitmapFactory.decodeResource(context.resources, R.drawable.creeper)
 
@@ -115,16 +117,29 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
             }
         }
 
-        canvas.drawBitmap(
-            steve,
-            switcher(char),
-            RectF(
-                100f,
-                (canvas.height - ground.height - steve.height).toFloat(),
-                (steve.width + 100).toFloat(),
-                (canvas.height - ground.height).toFloat()
-            ), mPaint
-        )
+        if (isFire){
+            canvas.drawBitmap(
+                fire,
+                switcher(char),
+                RectF(
+                    100f,
+                    (canvas.height - ground.height - steve.height).toFloat(),
+                    (steve.width + 100).toFloat(),
+                    (canvas.height - ground.height).toFloat()
+                ), mPaint
+            )
+        } else{
+            canvas.drawBitmap(
+                steve,
+                switcher(char),
+                RectF(
+                    100f,
+                    (canvas.height - ground.height - steve.height).toFloat(),
+                    (steve.width + 100).toFloat(),
+                    (canvas.height - ground.height).toFloat()
+                ), mPaint
+            )
+        }
         char = !char
 
 

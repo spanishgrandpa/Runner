@@ -10,6 +10,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
+        findViewById<MySW>(R.id.mySW).setOnClickListener {
+            (it as MySW).BURN()
+        }
     }
 }

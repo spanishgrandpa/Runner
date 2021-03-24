@@ -37,5 +37,8 @@ class MySW(context: Context, attributeSet: AttributeSet) : SurfaceView(context, 
         mMyThread.start(); //запускает процесс в отдельном потоке
     }
 
+    fun BURN(){
+        mMyThread.isFire != mMyThread.isFire
+    }
 
 }
