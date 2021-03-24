@@ -100,6 +100,8 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
 
         val curTime: Long = System.currentTimeMillis() - mStartTime
 
+        var score = 0
+        canvas.drawText(score.toString(), (canvas.width - 50).toFloat(), 10f, mPaint)
 
         fun drawGrooud(canvas: Canvas, transition: Int) {
             for (i in transition..width step 100) {
@@ -114,6 +116,8 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
                     ),
                     mPaint
                 )
+                score+=1
+                canvas.drawText(score.toString(), (canvas.width - 50).toFloat(), 10f, mPaint)
             }
         }
 
@@ -152,8 +156,6 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         Rect(steve.width / 2, 0, steve.width, steve.height)
 }
 
-//        var prep2 = List(4, )
-//        var list = List(5, )
 
 
 //        canvas.drawColor(Color.BLACK)
