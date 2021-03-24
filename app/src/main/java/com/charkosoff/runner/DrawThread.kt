@@ -118,7 +118,12 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         canvas.drawBitmap(
             steve,
             switcher(char),
-             mPaint
+            RectF(
+                100f,
+                (canvas.height - ground.height - steve.height).toFloat(),
+                (steve.width + 100).toFloat(),
+                (canvas.height - ground.height).toFloat()
+            ), mPaint
         )
         char = !char
 
