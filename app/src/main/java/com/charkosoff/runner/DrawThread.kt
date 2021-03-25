@@ -177,6 +177,8 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
     var isBurn = false
     fun firetime(){
 
+        if (!isFire.get()) {firestart = 0L}
+
         if (isFire.get() && !isBurn) {
             firestart = System.currentTimeMillis()
             isBurn = true
