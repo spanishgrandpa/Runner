@@ -4,11 +4,12 @@ import android.animation.ArgbEvaluator
 import android.content.Context
 import android.graphics.*
 import android.view.SurfaceHolder
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : Thread() {
 
-    var isFire = true
+    var isFire = AtomicBoolean(false)
     private val REDRAW_TIME = 33 //частота обновления экрана - 10 мс
 
     private var mRunning //запущен ли процесс
@@ -19,11 +20,10 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
             : Long = 0
 
     private var mPaint: Paint
-    private var mArgbEvaluator: ArgbEvaluator
 
     var steve = BitmapFactory.decodeResource(context.resources, R.drawable.qwr)
     var fire = BitmapFactory.decodeResource(context.resources, R.drawable.qw)
-    var ground = BitmapFactory.decodeResource(context.resources, R.drawable.group)
+    var ground = BitmapFactory.decodeResource(context.resources, R.drawable.zemlya)
     var creeper = BitmapFactory.decodeResource(context.resources, R.drawable.creeper)
 
 
@@ -34,7 +34,6 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         mPaint.setAntiAlias(true)
         mPaint.setStyle(Paint.Style.FILL)
 
-        mArgbEvaluator = ArgbEvaluator()
     }
 
     fun setRunning(running: Boolean) { //запускает и останавливает процесс
@@ -42,10 +41,11 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         mPrevRedrawTime = System.currentTimeMillis()
     }
 
+    var firestart = 0L
     var currentTs = 0
     var maxTr = -100
     val speed = 10 // скорость смещения экрана
-    var prep1 = List(
+    var prep1 = MutableList(
         400,
         {
             PointF(
@@ -53,8 +53,14 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
                 (surfaceHolder.surfaceFrame.height() - ground.height - creeper.height).toFloat()
             )
         })
+
+    var score = 0
     var char = true
+
+
     override fun run() {
+
+
         var canvas: Canvas?
         mStartTime = System.currentTimeMillis()
 
@@ -72,14 +78,20 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
                     canvas.drawColor(Color.WHITE)
 
                     draw(canvas, currentTs) //функция рисования
-                    prep1.forEach {
+                    prep1.toList().forEach {
                         canvas.drawBitmap(creeper, it.x, it.y, mPaint)
                     }
+
+                    mPaint.color = Color.BLACK
+                    mPaint.textSize = 56f
+                    canvas.drawText(score.toString(), 10f, 70f, mPaint)
                 }
 
+                firetime()
                 //смещение
                 for (i in prep1.indices) {
                     prep1[i].x -= speed
+                    score += 1
                 }
                 currentTs -= speed
                 if (currentTs <= maxTr)
@@ -98,9 +110,6 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         val width = canvas.width
         val height = canvas.height
 
-        val curTime: Long = System.currentTimeMillis() - mStartTime
-
-        var score = 0
         canvas.drawText(score.toString(), (canvas.width - 50).toFloat(), 10f, mPaint)
 
         fun drawGrooud(canvas: Canvas, transition: Int) {
@@ -116,12 +125,11 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
                     ),
                     mPaint
                 )
-                score+=1
-                canvas.drawText(score.toString(), (canvas.width - 50).toFloat(), 10f, mPaint)
+
             }
         }
 
-        if (isFire){
+        if (isFire.get()) {
             canvas.drawBitmap(
                 fire,
                 switcher(char),
@@ -132,7 +140,7 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
                     (canvas.height - ground.height).toFloat()
                 ), mPaint
             )
-        } else{
+        } else {
             canvas.drawBitmap(
                 steve,
                 switcher(char),
@@ -145,27 +153,44 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
             )
         }
         char = !char
-
+        for (i in 0..prep1.size - 2) {
+            if (prep1[i].x <= (steve.width + 100).toFloat()) {
+                if (isFire.get()) {
+                    prep1.removeAt(0)
+                } else {
+                    setRunning(false)
+                    mPaint.textSize = 72f
+                    mPaint.color = Color.RED
+                    canvas.drawText("Вы погибли", 0f, canvas.height / 2f, mPaint)
+                }
+            }
+        }
 
         drawGrooud(canvas, transition)
     }
 
     fun switcher(i: Boolean) = if (i)
-        Rect(0, 0, steve.width / 2 , steve.height)
+        Rect(0, 0, steve.width / 2, steve.height)
     else
         Rect(steve.width / 2, 0, steve.width, steve.height)
+
+    var isBurn = false
+    fun firetime(){
+
+        if (isFire.get() && !isBurn) {
+            firestart = System.currentTimeMillis()
+            isBurn = true
+            return
+        }
+
+        var currentTime = System.currentTimeMillis()
+
+        if (currentTime - firestart > 1000) {
+            isFire.set(false)
+            isBurn = false
+        }
+
+
+    }
+
 }
-
-
-
-//        canvas.drawColor(Color.BLACK)
-//        val centerX = width / 2
-//        val centerY = height / 2
-//        val maxSize = Math.min(width, height) / 2.toFloat()
-//
-//
-//        val fraction = (curTime % ANIMATION_TIME).toFloat() / ANIMATION_TIME
-//
-//        val color = mArgbEvaluator.evaluate(fraction, Color.RED, Color.BLACK) as Int
-//        mPaint.color = color
-//        canvas.drawCircle(centerX.toFloat(), centerY.toFloat(), maxSize * fraction, mPaint)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.widget.Toast
 
 class MySW(context: Context, attributeSet: AttributeSet) : SurfaceView(context, attributeSet),
     SurfaceHolder.Callback {
@@ -37,8 +38,10 @@ class MySW(context: Context, attributeSet: AttributeSet) : SurfaceView(context, 
         mMyThread.start(); //запускает процесс в отдельном потоке
     }
 
-    fun BURN(){
-        mMyThread.isFire != mMyThread.isFire
+    fun BURN() {
+        mMyThread.isFire.set(!mMyThread.isFire.get())
+
+
     }
 
 }
