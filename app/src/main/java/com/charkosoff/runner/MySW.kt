@@ -40,8 +40,6 @@ class MySW(context: Context, attributeSet: AttributeSet) : SurfaceView(context, 
 
     fun BURN() {
         mMyThread.isFire.set(!mMyThread.isFire.get())
-
-
     }
 
 }

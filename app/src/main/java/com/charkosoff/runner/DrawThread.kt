@@ -2,8 +2,11 @@ package com.charkosoff.runner
 
 import android.animation.ArgbEvaluator
 import android.content.Context
+import android.content.Intent
 import android.graphics.*
+import android.preference.PreferenceManager
 import android.view.SurfaceHolder
+import androidx.core.content.ContextCompat.startActivity
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -22,9 +25,10 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
     private var mPaint: Paint
 
     var steve = BitmapFactory.decodeResource(context.resources, R.drawable.qwr)
-    var fire = BitmapFactory.decodeResource(context.resources, R.drawable.qw)
+    var fire = BitmapFactory.decodeResource(context.resources, R.drawable.fire)
     var ground = BitmapFactory.decodeResource(context.resources, R.drawable.zemlya)
     var creeper = BitmapFactory.decodeResource(context.resources, R.drawable.creeper)
+
 
 
     init {
@@ -55,7 +59,7 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         })
 
     var score = 0
-    var char = true
+    var char = System.currentTimeMillis()%200
 
 
     override fun run() {
@@ -84,7 +88,7 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
 
                     mPaint.color = Color.BLACK
                     mPaint.textSize = 56f
-                    canvas.drawText(score.toString(), 10f, 70f, mPaint)
+                    canvas.drawText((score/1000).toString(), 10f, 70f, mPaint)
                 }
 
                 firetime()
@@ -110,7 +114,8 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         val width = canvas.width
         val height = canvas.height
 
-        canvas.drawText(score.toString(), (canvas.width - 50).toFloat(), 10f, mPaint)
+//        if (score%100 == 0) canvas.drawText((score/100).toString(), (canvas.width - 50).toFloat(), 10f, mPaint)
+
 
         fun drawGrooud(canvas: Canvas, transition: Int) {
             for (i in transition..width step 100) {
@@ -132,7 +137,7 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         if (isFire.get()) {
             canvas.drawBitmap(
                 fire,
-                switcher(char),
+                switcher(char!!.toInt()),
                 RectF(
                     100f,
                     (canvas.height - ground.height - steve.height).toFloat(),
@@ -143,7 +148,7 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
         } else {
             canvas.drawBitmap(
                 steve,
-                switcher(char),
+                switcher(char!!.toInt()),
                 RectF(
                     100f,
                     (canvas.height - ground.height - steve.height).toFloat(),
@@ -152,24 +157,24 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, context: Context) : T
                 ), mPaint
             )
         }
-        char = !char
+//        char != char
+        char = System.currentTimeMillis()%200
         for (i in 0..prep1.size - 2) {
             if (prep1[i].x <= (steve.width + 100).toFloat()) {
                 if (isFire.get()) {
                     prep1.removeAt(0)
                 } else {
                     setRunning(false)
-                    mPaint.textSize = 72f
+                    mPaint.textSize = 98f
                     mPaint.color = Color.RED
-                    canvas.drawText("Вы погибли", 0f, canvas.height / 2f, mPaint)
+                    canvas.drawText("Вы погибли", canvas.width / 4f, canvas.height / 2f, mPaint)
                 }
             }
         }
-
         drawGrooud(canvas, transition)
     }
 
-    fun switcher(i: Boolean) = if (i)
+    fun switcher(i: Int) = if (i < 100)
         Rect(0, 0, steve.width / 2, steve.height)
     else
         Rect(steve.width / 2, 0, steve.width, steve.height)
